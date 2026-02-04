@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <style>
+    .is-zero{
+      background-color: gray;
+    }
+    .normal{
+      background-color: green;
+    }
+  </style>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function App() {
+        const [count,setCount] = React.useState(0)
+        function increment(){
+          setCount(prev => prev +1)
+        }
+         function decrement(){
+          if(count <= 0){
+            return;
+          }
+          setCount(prev => prev -1)
+        }
+        
+        return (
+          <>
+              <button onClick={increment}>+1</button>
+              <div className={count===0 ? 'is-zero' : 'normal'}>{count}</div>
+              <button onClick={decrement}>-1</button>
+          </>
+        );
+      }
+
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>

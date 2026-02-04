@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <style>
+    *{
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+        background-color: black;
+    }
+    .container{
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        background-color: white;
+
+    }
+    .btn-container{
+        display: flex;
+        gap: 1rem;
+    }
+  </style>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function App(){
+        const [count,setCount] = React.useState(0)
+        const buttonRef = React.useRef();
+        function press(){
+            setCount(prev => prev+1)
+        }
+        function resetToZero(){
+            setCount(0)
+        }
+        function autoClick(){
+           
+            setInterval(()=>{
+                const buttonElm = buttonRef.current;
+                if(buttonElm){
+                    buttonElm.click()
+                }
+            },1000)
+        }
+        
+            
+        
+        return(
+            <>
+            <button ref={buttonRef} onClick={press}>Clicked {count} times</button>
+            <button onClick={resetToZero}>Reset</button>
+            <button   onClick = {autoClick}>Auto Click</button>
+            </>
+        )
+      }
+
+      
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>

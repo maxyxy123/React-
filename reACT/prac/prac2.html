@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <style>
+  
+  </style>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function App() {
+        const [isShown,setIsShown] = React.useState(false)
+        function password(){
+            if(isShown){
+              setIsShown(false)
+            }else{
+              setIsShown(true)
+            }
+        }
+        return(
+          <>
+          <input type={isShown ? 'text' : 'password' } />
+          <button onClick={password}>Hide</button>
+          </>
+        )
+      }
+
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>

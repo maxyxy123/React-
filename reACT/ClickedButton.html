@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function App() {
+        const [input, setInput] = React.useState('');
+        const [submittedText,setSubmittedText] = React.useState('');
+        function saveInput(e){
+          setInput(e.target.value)
+        }
+        function sendMessage(){
+          const text = input
+          setSubmittedText(text)
+          setInput('');
+        }
+        function chatInput(e){
+          e.key ==='Enter' && sendMessage()
+        }
+        
+        return (
+          <>
+              <input 
+              type="text"
+              placeholder ="Hello" 
+              onChange={saveInput}
+              onKeyDown={chatInput}
+             value ={input}
+              />
+           <div>{submittedText}</div>
+              
+          </>
+        );
+      }
+
+     
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>

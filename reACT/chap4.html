@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <style>
+    *{
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+        background-color: black;
+    }
+    .container{
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        background-color: white;
+
+    }
+    .btn-container{
+        display: flex;
+        gap: 1rem;
+    }
+  </style>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function App(){
+        const [hide,setHide] = React.useState(false)
+        function hides(){
+                if(hide){
+                    setHide(false)
+                }else{
+                    setHide(true)
+                }
+        }
+        return(
+            <div className='container'>
+            <div>Hello,welcome to my website</div>
+            
+            <input type="text" placeholder="Email" />
+            <input type={hide ? 'text' : 'Password'} placeholder="Password" />
+            <button onClick={hides} >Hide</button>
+            <div className='btn-container'>
+                <button>Login</button>
+                <button>Signup</button>
+            </div>
+            <Clock />
+            </div>
+        )
+      }
+
+      function Clock(){
+        
+        const [time,setTime] =React.useState(dayjs().format('HH:mm:ss'))
+        React.useEffect(()=>{
+            let timerId ;
+            timerId = setInterval(()=>{
+                console.log('run code')
+                setTime(dayjs().format('HH:mm:ss'))
+            },1000)
+            return()=>{
+                clearInterval(timerId);
+            }
+        },[])
+        return(
+            <>
+            <div>Current TIme : {time}</div>
+            </>
+        )
+      }
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <style></style>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function App() {
+        const [chatMessages, setChatMessages] = React.useState([]);
+        const [input, setInput] = React.useState("");
+        const inputRef = React.useRef(null);
+        const [debounceInput,setDebounceInput] = React.useState('');
+        React.useEffect(()=>{
+            let timerId;
+           timerId = setTimeout(()=>{
+                setDebounceInput(input);
+            },500)
+            return()=>{
+                clearTimeout(timerId);
+            }
+        },[input])
+
+        function sendMessages() {
+            if(input === ''){
+                return;
+            }
+           
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              text: input,
+              id: crypto.randomUUID(),
+            },
+          ]);
+          setInput("");
+          inputRef.current.focus();
+         
+        }
+
+        function press(e){
+            if(e.key === 'Enter'){
+                    sendMessages()
+            }
+        }
+        return (
+          <>
+            <ChatInput keydown={press} reff={inputRef} input={input} setInput={setInput} />
+            <button onClick={sendMessages}>send</button>
+            <ChatMessages
+              chatMessages={chatMessages}
+              setChatMessages={setChatMessages}
+            />
+            <div>Delay 500ms:  {debounceInput}</div>
+          </>
+        );
+      }
+
+      function ChatInput({ input, setInput, reff,keydown }) {
+        function chatInput(e) {
+          setInput(e.target.value);
+        }
+        
+
+        return (
+          <div>
+            <input onKeyDown = {keydown} ref={reff} type="text" onChange={chatInput} value={input} />
+          </div>
+        );
+      }
+      function ChatMessages({ chatMessages, setChatMessages }) {
+        const containerElm = React.useRef(null);
+        React.useEffect(() => {
+          const el = containerElm.current;
+          el.scrollTop = el.scrollHeight;
+        }, [chatMessages]);
+        return (
+          <div
+            ref={containerElm}
+            style={{
+              height: 200,
+              overflowY: "auto",
+              border: "1px solid #ddd",
+              padding: 8,
+            }}
+          >
+            {chatMessages.length === 0 && <div>Please enter a message</div>}
+            {chatMessages.map((prev) => (
+              <React.Fragment key={prev.id}>
+                <div>Text :{prev.text}</div>
+              </React.Fragment>
+            ))}
+          </div>
+        );
+      }
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>
