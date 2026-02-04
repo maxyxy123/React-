@@ -17,22 +17,44 @@
         const [chatMessages, setChatMessages] = React.useState([]);
         const [input, setInput] = React.useState("");
         const inputRef = React.useRef(null);
-        const [debounceInput,setDebounceInput] = React.useState('');
-        React.useEffect(()=>{
-            let timerId;
-           timerId = setTimeout(()=>{
-                setDebounceInput(input);
-            },500)
-            return()=>{
-                clearTimeout(timerId);
-            }
-        },[input])
+        const [debounceInput, setDebounceInput] = React.useState("");
+        const [isTyping, setIsTyping] = React.useState(false);
+        let timerCurrentRef = React.useRef(null);
+
+        React.useEffect(() => {
+          clearTimeout(timerCurrentRef.current);
+
+          if (input === "") {
+            setIsTyping(false);
+            return;
+          }
+
+          setIsTyping(true);
+
+          timerCurrentRef.current = setTimeout(() => {
+            setIsTyping(false);
+          }, 700);
+
+          return () => {
+            clearTimeout(timerCurrentRef.current);
+          };
+        }, [input]);
+
+        React.useEffect(() => {
+          let timerId;
+          timerId = setTimeout(() => {
+            setDebounceInput(input);
+          }, 500);
+          return () => {
+            clearTimeout(timerId);
+          };
+        }, [input]);
 
         function sendMessages() {
-            if(input === ''){
-                return;
-            }
-           
+          if (input === "") {
+            return;
+          }
+
           setChatMessages((prev) => [
             ...prev,
             {
@@ -42,40 +64,65 @@
           ]);
           setInput("");
           inputRef.current.focus();
-         
         }
 
-        function press(e){
-            if(e.key === 'Enter'){
-                    sendMessages()
-            }
+        function press(e) {
+          if (e.key === "Enter") {
+            sendMessages();
+          }
         }
         return (
           <>
-            <ChatInput keydown={press} reff={inputRef} input={input} setInput={setInput} />
+            <ChatInput
+              keydown={press}
+              reff={inputRef}
+              input={input}
+              setInput={setInput}
+              isTyping={isTyping}
+              setIsTyping={setIsTyping}
+            />
             <button onClick={sendMessages}>send</button>
             <ChatMessages
               chatMessages={chatMessages}
               setChatMessages={setChatMessages}
+              isTyping={isTyping}
+              setIsTyping={setIsTyping}
             />
-            <div>Delay 500ms:  {debounceInput}</div>
+            <div>Delay 500ms: {debounceInput}</div>
           </>
         );
       }
 
-      function ChatInput({ input, setInput, reff,keydown }) {
+      function ChatInput({
+        input,
+        setInput,
+        reff,
+        keydown,
+        isTyping,
+        setIsTyping,
+      }) {
         function chatInput(e) {
           setInput(e.target.value);
         }
-        
 
         return (
           <div>
-            <input onKeyDown = {keydown} ref={reff} type="text" onChange={chatInput} value={input} />
+            <input
+              onKeyDown={keydown}
+              ref={reff}
+              type="text"
+              onChange={chatInput}
+              value={input}
+            />
           </div>
         );
       }
-      function ChatMessages({ chatMessages, setChatMessages }) {
+      function ChatMessages({
+        chatMessages,
+        setChatMessages,
+        isTyping,
+        setIsTyping,
+      }) {
         const containerElm = React.useRef(null);
         React.useEffect(() => {
           const el = containerElm.current;
@@ -92,6 +139,7 @@
             }}
           >
             {chatMessages.length === 0 && <div>Please enter a message</div>}
+            {isTyping && <div>Typing....</div>}
             {chatMessages.map((prev) => (
               <React.Fragment key={prev.id}>
                 <div>Text :{prev.text}</div>
