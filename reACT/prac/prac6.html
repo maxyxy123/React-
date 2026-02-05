@@ -21,21 +21,10 @@
         const [isTyping, setIsTyping] = React.useState(false);
         let timerCurrentRef = React.useRef(null);
         const renderCount = React.useRef(0);
-        const [undo, setUndo] = React.useState(true);
+        const [undo, setUndo] = React.useState(false);
         let undoRef = React.useRef(null);
-        React.useEffect(() => {
-          clearTimeout(undoRef.current);
-          console.log(undoRef.current);
-
-          undoRef.current = setTimeout(() => {
-            setUndo(false);
-          }, 5000);
-          return () => {
-            if (undoRef.current) {
-              clearTimeout(undoRef.current);
-            }
-          };
-        }, [chatMessages.length]);
+        
+       
 
         React.useEffect(() => {
           renderCount.current++;
@@ -84,6 +73,11 @@
           ]);
           setInput("");
           inputRef.current.focus();
+          setUndo(true)
+         
+          undoRef.current = setTimeout(()=>{
+            setUndo(false)
+          },5000)
         }
 
         function press(e) {
@@ -154,9 +148,11 @@
           el.scrollTop = el.scrollHeight;
         }, [chatMessages]);
         function undoButton() {
+           clearTimeout(undoRef.current)
           setChatMessages((prev) => prev.slice(0, -1));
-          console.log(chatMessages);
-          setUndo(true);
+          setUndo(false);
+         
+          
         }
         return (
           <div
@@ -173,9 +169,10 @@
             {chatMessages.map((prev) => (
               <React.Fragment key={prev.id}>
                 <div>You :{prev.text}</div>
-                {undo && <button onClick={undoButton}>Undo</button>}
+                
               </React.Fragment>
             ))}
+            {undo && <button onClick={undoButton}>Undo</button>}
             {isTyping && <div>Typing....</div>}
           </div>
         );
