@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React Basics</title>
+  </head>
+  <style>
+    .Container {
+      border: 1px solid grey;
+      height: 500px;
+      width: 500px;
+      overflow-y: auto;
+    }
+    .input-appear {
+      display: inline-block;
+    }
+    .input-dissapear {
+      display: none;
+    }
+    .todo-dissapear {
+      display: none;
+    }
+    .todo-appear {
+      display: inline-block;
+    }
+  </style>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function App() {
+        const [input, setInput] = React.useState("");
+        const [todo, setTodo] = React.useState(
+          JSON.parse(localStorage.getItem("todo")) || [],
+        );
+        const [isTyping, setIsTyping] = React.useState(false);
+        const timerTyping = React.useRef(null);
+        const radioRef = React.useRef(null);
+        const [isEditting, setIsEditting] = React.useState("");
+        const [itemId, setItemId] = React.useState(null);
+        React.useEffect(() => {
+          localStorage.setItem("todo", JSON.stringify(todo));
+        }, [todo]);
+
+        React.useEffect(() => {
+          clearTimeout(timerTyping.current);
+
+          if (input === "") {
+            setIsTyping(false);
+            return;
+          }
+          setIsTyping(true);
+
+          timerTyping.current = setTimeout(() => {
+            setIsTyping(false);
+          }, 1000);
+
+          return () => {
+            clearTimeout(timerTyping.current);
+          };
+        }, [input]);
+
+        return (
+          <>
+            <ChatInput
+              input={input}
+              setInput={setInput}
+              setTodo={setTodo}
+              todo={todo}
+              radioRef={radioRef}
+            />
+            <TodoList
+              setTodo={setTodo}
+              todo={todo}
+              isTyping={isTyping}
+              setIsTyping={setIsTyping}
+              isEditting={isEditting}
+              setIsEditting={setIsEditting}
+              itemId={itemId}
+              setItemId={setItemId}
+              input={input}
+              setInput={setInput}
+              radioRef={radioRef}
+            />
+          </>
+        );
+      }
+
+      function ChatInput({
+        input,
+        setInput,
+        todo,
+        setTodo,
+        complete,
+        setComplete,
+        radioRef,
+      }) {
+        function press(e) {
+          setInput(e.target.value);
+        }
+
+        function sendMessage(e) {
+          if (input === "") {
+            return;
+          }
+
+          setTodo((prev) => [
+            ...prev,
+            {
+              text: input.trim(),
+              id: crypto.randomUUID(),
+            },
+          ]);
+
+          setInput("");
+          radioRef.current.focus();
+        }
+        function enterKey(e) {
+          if (input === "") {
+            return;
+          }
+          if (e.key === "Enter") {
+            sendMessage();
+          }
+        }
+
+        return (
+          <>
+            <input
+              type="text"
+              placeholder="todo"
+              value={input}
+              onChange={press}
+              onKeyDown={enterKey}
+              ref={radioRef}
+            />
+            <button onClick={sendMessage}>Send</button>
+          </>
+        );
+      }
+
+      function TodoList({
+        todo,
+        setTodo,
+        isTyping,
+        setIsTyping,
+        complete,
+        setComplete,
+        isEditting,
+        setIsEditting,
+        itemId,
+        setItemId,
+        input,
+        setInput,
+        radioRef
+      }) {
+        function deleteBtn(id) {
+          setTodo((prev) =>
+            prev.filter((item) => {
+              return item.id !== id;
+            }),
+          );
+        }
+        function saveId(item) {
+          setItemId(item.id); // id cua thang bam vao
+          setIsEditting(item.text); // text cua thg bam vao
+        }
+        function editInput(e) {
+          setIsEditting(e.target.value);
+        }
+
+        const containerRef = React.useRef(null);
+        React.useEffect(() => {
+          const containerElm = containerRef.current;
+          containerElm.scrollTop = containerElm.scrollHeight;
+        }, [todo.length]);
+
+        function saveText(id) {
+          setTodo((prev) =>
+            prev.map((item) =>
+              item.id === id ? { ...item, text: isEditting } : item,
+            ),
+          );
+           radioRef.current.focus();
+          setItemId(null)
+          setIsEditting('')
+          
+        }
+        return (
+          <div ref={containerRef} className="Container">
+            {todo.map((item) => {
+              const isEditingThis = itemId === item.id;
+
+              return (
+                <div key={item.id}>
+                  {!isEditingThis && <div>{item.text}</div>}
+                  {isEditingThis && (
+                    <>
+                      <input
+                        value={isEditting}
+                        onChange={editInput}
+                        type="text"
+                      />
+                      <button onClick={() => saveText(item.id)}>Save</button>
+                    </>
+                  )}
+
+                  <button onClick={() => deleteBtn(item.id)}>Delete</button>
+                  <button onClick={() => saveId(item)}>Edit</button>
+                </div>
+              );
+            })}
+            {isTyping && <div>Typing....</div>}
+          </div>
+        );
+      }
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>
