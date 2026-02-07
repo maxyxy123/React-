@@ -6,7 +6,7 @@
   <style>
     .Container {
       border: 1px solid grey;
-      height: 500px;
+      height: 300px;
       width: 500px;
       overflow-y: auto;
     }
@@ -40,9 +40,20 @@
         const [isTyping, setIsTyping] = React.useState(false);
         const timerTyping = React.useRef(null);
         const radioRef = React.useRef(null);
-        const [isEditting, setIsEditting] = React.useState("");
+        const [editText, seteditText] = React.useState("");
         const [itemId, setItemId] = React.useState(null);
-        const editInputRef = React.useState(null);
+
+        const [debounceInput, setDebounceInput] = React.useState("");
+        React.useEffect(() => {
+          const timerId = setTimeout(() => {
+            setDebounceInput(input);
+          }, 500);
+
+          return () => {
+            clearTimeout(timerId);
+          };
+        }, [input]);
+
         React.useEffect(() => {
           localStorage.setItem("todo", JSON.stringify(todo));
         }, [todo]);
@@ -79,15 +90,16 @@
               todo={todo}
               isTyping={isTyping}
               setIsTyping={setIsTyping}
-              isEditting={isEditting}
-              setIsEditting={setIsEditting}
+              editText={editText}
+              seteditText={seteditText}
               itemId={itemId}
               setItemId={setItemId}
               input={input}
               setInput={setInput}
               radioRef={radioRef}
-              editInputRef={editInputRef}
+             
             />
+            <div>Debounce 500ms :{debounceInput}</div>
           </>
         );
       }
@@ -152,16 +164,16 @@
         setIsTyping,
         complete,
         setComplete,
-        isEditting,
-        setIsEditting,
+        editText,
+        seteditText,
         itemId,
         setItemId,
         input,
         setInput,
         radioRef,
-        editInputRef,
+      
       }) {
-        let isEdittingText;
+   
         const containerRef = React.useRef(null);
         React.useEffect(() => {
           const containerElm = containerRef.current;
@@ -174,39 +186,40 @@
 
         function editButton(item) {
           setItemId(item.id);
-          setIsEditting(item.text);
+          seteditText(item.text);
         }
         function editTheInput(e) {
-          setIsEditting(e.target.value);
-          isEdittingText;
+          seteditText(e.target.value);
         }
 
         function saveButton(id) {
           setTodo((prev) =>
             prev.map((item) =>
-              item.id === id ? { ...item, text: isEditting } : item,
+              item.id === id ? { ...item, text: editText } : item,
             ),
           );
           setItemId(null);
-          setIsEditting("");
+          seteditText("");
+          radioRef.current.foczus();
         }
         function cancel(item) {
-          setIsEditting("");
+          seteditText("");
           setItemId(null);
         }
 
         return (
           <div ref={containerRef} className="Container">
             {todo.map((item) => {
-              isEdittingText = item.id === itemId;
+             const  editTextText = item.id === itemId;
               return (
                 <div key={item.id}>
-                  {!isEdittingText && <div>{item.text}</div>}
-                  {isEdittingText && (
+                  {!editTextText && <div>{item.text}</div>}
+                  {editTextText && (
                     <>
                       <input
+                        autoFocus
                         type="text"
-                        value={isEditting}
+                        value={editText}
                         onChange={editTheInput}
                       />
                       <button onClick={() => saveButton(item.id)}>Save</button>
