@@ -42,6 +42,7 @@
         const radioRef = React.useRef(null);
         const [isEditting, setIsEditting] = React.useState("");
         const [itemId, setItemId] = React.useState(null);
+        const editInputRef = React.useState(null);
         React.useEffect(() => {
           localStorage.setItem("todo", JSON.stringify(todo));
         }, [todo]);
@@ -85,6 +86,7 @@
               input={input}
               setInput={setInput}
               radioRef={radioRef}
+              editInputRef={editInputRef}
             />
           </>
         );
@@ -156,61 +158,63 @@
         setItemId,
         input,
         setInput,
-        radioRef
+        radioRef,
+        editInputRef,
       }) {
-        function deleteBtn(id) {
-          setTodo((prev) =>
-            prev.filter((item) => {
-              return item.id !== id;
-            }),
-          );
-        }
-        function saveId(item) {
-          setItemId(item.id); // id cua thang bam vao
-          setIsEditting(item.text); // text cua thg bam vao
-        }
-        function editInput(e) {
-          setIsEditting(e.target.value);
-        }
-
+        let isEdittingText;
         const containerRef = React.useRef(null);
         React.useEffect(() => {
           const containerElm = containerRef.current;
           containerElm.scrollTop = containerElm.scrollHeight;
         }, [todo.length]);
 
-        function saveText(id) {
+        function deleteButton(id) {
+          setTodo((prev) => prev.filter((item) => item.id !== id));
+        }
+
+        function editButton(item) {
+          setItemId(item.id);
+          setIsEditting(item.text);
+        }
+        function editTheInput(e) {
+          setIsEditting(e.target.value);
+          isEdittingText;
+        }
+
+        function saveButton(id) {
           setTodo((prev) =>
             prev.map((item) =>
               item.id === id ? { ...item, text: isEditting } : item,
             ),
           );
-           radioRef.current.focus();
-          setItemId(null)
-          setIsEditting('')
-          
+          setItemId(null);
+          setIsEditting("");
         }
+        function cancel(item) {
+          setIsEditting("");
+          setItemId(null);
+        }
+
         return (
           <div ref={containerRef} className="Container">
             {todo.map((item) => {
-              const isEditingThis = itemId === item.id;
-
+              isEdittingText = item.id === itemId;
               return (
                 <div key={item.id}>
-                  {!isEditingThis && <div>{item.text}</div>}
-                  {isEditingThis && (
+                  {!isEdittingText && <div>{item.text}</div>}
+                  {isEdittingText && (
                     <>
                       <input
-                        value={isEditting}
-                        onChange={editInput}
                         type="text"
+                        value={isEditting}
+                        onChange={editTheInput}
                       />
-                      <button onClick={() => saveText(item.id)}>Save</button>
+                      <button onClick={() => saveButton(item.id)}>Save</button>
+                      <button onClick={() => cancel(item)}>Cancel</button>
                     </>
                   )}
-
-                  <button onClick={() => deleteBtn(item.id)}>Delete</button>
-                  <button onClick={() => saveId(item)}>Edit</button>
+                  <button onClick={() => editButton(item)}>Edit</button>
+                  <button onClick={() => deleteButton(item.id)}>Delete</button>
                 </div>
               );
             })}
