@@ -22,6 +22,10 @@
     .todo-appear {
       display: inline-block;
     }
+    .todo-done {
+      color: green;
+      text-decoration: underline;
+    }
   </style>
   <body>
     <div class="js-container"></div>
@@ -97,7 +101,6 @@
               input={input}
               setInput={setInput}
               radioRef={radioRef}
-             
             />
             <div>Debounce 500ms :{debounceInput}</div>
           </>
@@ -127,6 +130,7 @@
             {
               text: input.trim(),
               id: crypto.randomUUID(),
+              done: false,
             },
           ]);
 
@@ -171,9 +175,7 @@
         input,
         setInput,
         radioRef,
-      
       }) {
-   
         const containerRef = React.useRef(null);
         React.useEffect(() => {
           const containerElm = containerRef.current;
@@ -200,20 +202,32 @@
           );
           setItemId(null);
           seteditText("");
-          radioRef.current.foczus();
+          radioRef.current.focus();
         }
         function cancel(item) {
           seteditText("");
           setItemId(null);
         }
+        function checked(id) {
+          setTodo((prev) =>
+            prev.map((item) =>
+              item.id === id ? { ...item, done: !item.done } : item,
+            ),
+          );
+        }
 
         return (
           <div ref={containerRef} className="Container">
             {todo.map((item) => {
-             const  editTextText = item.id === itemId;
+              const editTextText = item.id === itemId;
+
               return (
                 <div key={item.id}>
-                  {!editTextText && <div>{item.text}</div>}
+                  {!editTextText && (
+                    <div className={item.done ? "todo-done" : "todo-not-done"}>
+                      {item.text}
+                    </div>
+                  )}
                   {editTextText && (
                     <>
                       <input
@@ -222,10 +236,16 @@
                         value={editText}
                         onChange={editTheInput}
                       />
+
                       <button onClick={() => saveButton(item.id)}>Save</button>
                       <button onClick={() => cancel(item)}>Cancel</button>
                     </>
                   )}
+                  <input
+                    type="checkbox"
+                    name="subscribe"
+                    onClick={() => checked(item.id)}
+                  />
                   <button onClick={() => editButton(item)}>Edit</button>
                   <button onClick={() => deleteButton(item.id)}>Delete</button>
                 </div>
