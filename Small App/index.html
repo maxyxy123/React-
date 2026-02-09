@@ -47,7 +47,15 @@
         const [editText, seteditText] = React.useState("");
         const [itemId, setItemId] = React.useState(null);
 
+        const [filter, setFilter] = React.useState("all");
+
         const [debounceInput, setDebounceInput] = React.useState("");
+        const visibleTodo = React.useMemo(() => {
+          if (filter === "active") return todo.filter((t) => !t.done);
+          if (filter === "completed") return todo.filter((t) => t.done);
+          return todo;
+        }, [todo, filter]);
+
         React.useEffect(() => {
           const timerId = setTimeout(() => {
             setDebounceInput(input);
@@ -89,9 +97,12 @@
               todo={todo}
               radioRef={radioRef}
             />
+            <button onClick={() => setFilter("all")}>All</button>
+            <button onClick={() => setFilter("active")}>Active</button>
+            <button onClick={() => setFilter("completed")}>Completed</button>
             <TodoList
               setTodo={setTodo}
-              todo={todo}
+              todo={visibleTodo}
               isTyping={isTyping}
               setIsTyping={setIsTyping}
               editText={editText}
