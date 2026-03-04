@@ -25,6 +25,12 @@ function App() {
     setInput('')
     console.log(res.data)
   }
+  function enterKey(event :any){
+    if(input === '') return;
+    if(event.key === 'Enter'){
+      addTodo()
+    }
+  }
 
   useEffect(() => {
     fetchTodo()
@@ -32,14 +38,15 @@ function App() {
 
   return (
     <main>
-      <input value={input} onChange={(e)=> setInput(e.target.value)} type="text" placeholder='Enter Todo' />
+      <input value={input} onChange={(e)=> setInput(e.target.value)
+      } onKeyDown={enterKey} type="text" placeholder='Enter Todo' />
       <button onClick={()=>addTodo()}>Add</button>
 
 
       <div className='Grid'>
         {todo ? todo?.todos.map(t => (
-          <React.Fragment key={t.id}>
-            <div> ID : {t.id}</div>
+          <React.Fragment key={t.id} >
+            <div className={t.completed ? 'done' : 'not-done'}> ID : {t.id}</div>
             <div> Todo : {t.todo}</div>
             <button>Edit</button>
             <button>Delete</button>
@@ -47,7 +54,7 @@ function App() {
         )) : <div>Loading...</div>}
         {userTodo && userTodo.map(t => (
           <React.Fragment key={t.id}>
-          <div> ID : {t.id}</div>
+          <div className={t.completed ? 'done' : 'not-done'}> ID : {t.id}</div>
           <div> Todo : {t.todo}</div>
           <button>Edit</button>
           <button>Delete</button>

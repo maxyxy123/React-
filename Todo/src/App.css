@@ -1,5 +1,13 @@
 .Grid{
   display: grid;
   grid-template-columns: repeat(4,100px);
+  
   gap: 0.7rem;
+}
+.done{
+  background-color: Green;
+
+}
+.not-done{
+  background-color: red;
 }
