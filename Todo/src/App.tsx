@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
+
 import axios from 'axios'
-import type { TodoResponse, UserTodo } from './types'
+import type { TodoResponse, UserTodo,Todo } from './types'
 import './App.css'
+
+
 
 function App() {
   const [todo, setTodo] = useState<TodoResponse | null>(null)
-  const [userTodo, setUserTodo] = useState<UserTodo[] | null>([])
+  const [userTodo, setUserTodo] = useState<UserTodo[] >([])
   const [input, setInput] = useState<string>('')
   const [isEditting, setIsEditting] = useState<string>('')
   const [id, setId] = useState<number | null>(null)
+
+  
+
+ 
+
   const fetchTodo = async () => {
     const res = await axios.get('https://dummyjson.com/todos/user/20')
     setTodo(res.data)
@@ -23,7 +30,7 @@ function App() {
       userId: 100,
     })
     const data = await res.data
-    setUserTodo(prev => [...prev, data])
+    setUserTodo((prev:any) => [...prev, data])
     setInput('')
     console.log(res.data)
   }
@@ -47,9 +54,9 @@ function App() {
     setId(null)
   }
   const saveButton = (id : number) => {
-    setTodo(prev=>{
+    setTodo((prev:any)=>{
       if(!prev) return 
-      const newTodo = prev.todos.map(t=> t.id ===id ? {...t,todo : isEditting} : t)
+      const newTodo = prev.todos.map((t:Todo)=> t.id ===id ? {...t,todo : isEditting} : t)
 
       return {...prev,todos :newTodo}
     })
@@ -60,11 +67,28 @@ function App() {
   const deleteButton = (id : number)=>{
     setTodo((prev:any) => {
       if(!prev) return
-      const newTodo = prev.todos.filter(t => t.id !== id )
+      const newTodo = prev.todos.filter((t:Todo) => t.id !== id )
       return {...prev , todos :newTodo}
     })
   }
 
+  function checkedFunction(event:any , id :number){
+    
+    if(event.target.value === 'done'){
+     setTodo((prev:any) => {
+      if(!prev) return
+      const newTodo = prev?.todos.map((p:Todo) => p.id === id ? {...p, completed : true} : p)
+      return {...prev,todos : newTodo}
+     })
+    }else{
+      setTodo((prev:any) => {
+        if(!prev) return
+        const newTodo = prev?.todos.map((p:Todo) => p.id === id ? {...p, completed : false} : p)
+        return {...prev,todos : newTodo}
+       })
+    }
+  }
+  
   return (
 
     <main>
@@ -77,6 +101,7 @@ function App() {
       <div className='Grid'>
         {todo ? todo?.todos.map(t => {
           const isEdit = id === t.id
+         
           return (
             <React.Fragment key={t.id} >
               <div className={t.completed ? 'done' : 'not-done'}> ID : {t.id}</div>
@@ -96,6 +121,14 @@ function App() {
                 </>
               )}
               <button onClick={()=> deleteButton(t.id)}>Delete</button>
+              <div>
+                <input type="radio" name={`status-${t.id}`} onChange={(e)=> checkedFunction(e,t.id)} checked={t.completed} value='done' />
+                <input type="radio" name={`status-${t.id}`} onChange={(e)=> checkedFunction(e,t.id)} checked={!t.completed} value='not-done' />
+                
+       
+      
+      
+    </div>
             </React.Fragment>
           )
         }
